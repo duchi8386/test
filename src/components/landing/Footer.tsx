@@ -8,7 +8,7 @@ const Footer = () => {
           <div className="md:col-span-2">
             <img src={logo} alt="TIKA Network" width={64} height={64} className="h-16 w-auto mb-6" />
             <p className="text-foreground/60 max-w-sm leading-relaxed font-light">
-              Mạng lưới Influencer cao cấp kết nối các nhãn hàng với hơn 100,000+ nhà sáng tạo nội dung trên toàn Đông Nam Á.
+              Mạng lưới Influencer cao cấp kết nối các nhãn hàng với hơn 1000+ nhà sáng tạo nội dung đa nền tảng.
             </p>
           </div>
 
@@ -27,7 +27,7 @@ const Footer = () => {
             <ul className="space-y-3 text-foreground/60 text-sm font-light">
               <li>tikamedia@gmail.com</li>
               <li>037 631 6906</li>
-              <li>Quận 1, TP. Hồ Chí Minh</li>
+              <li>Quận 8, TP. Hồ Chí Minh</li>
             </ul>
           </div>
         </div>
@@ -35,9 +35,7 @@ const Footer = () => {
         <div className="gold-divider mb-6" />
         <div className="flex flex-col md:flex-row justify-between items-center gap-3 text-xs text-foreground/40 uppercase tracking-[0.15em]">
           <p>© 2025 TIKA Network. Đã đăng ký bản quyền.</p>
-          <div className="flex gap-8">
-            <a href="#" className="hover:text-primary transition-colors">Chính sách</a>
-            <a href="#" className="hover:text-primary transition-colors">Điều khoản</a>
+          <div className="flex gap-8">           
           </div>
         </div>
       </div>

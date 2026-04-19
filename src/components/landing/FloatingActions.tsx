@@ -18,7 +18,7 @@ const FloatingActions = () => {
   return (
     <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
       <a
-        href="https://zalo.me/"
+        href="https://zalo.me/0376316906"
         target="_blank"
         rel="noopener noreferrer"
         aria-label="Liên hệ qua Zalo"
@@ -32,7 +32,7 @@ const FloatingActions = () => {
       </a>
 
       <a
-        href="https://m.me/"
+        href="https://m.me/tikanetwork"
         target="_blank"
         rel="noopener noreferrer"
         aria-label="Liên hệ qua Messenger"

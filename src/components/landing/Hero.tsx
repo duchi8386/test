@@ -38,9 +38,7 @@ const Hero = () => {
             <Button variant="hero" size="xl" asChild>
               <a href="#contact">Bắt đầu chiến dịch <ArrowRight className="w-4 h-4" /></a>
             </Button>
-            <Button variant="soft" size="xl" asChild>
-              <a href="#creators">Xem KOLs</a>
-            </Button>
+           
           </div>
 
           <div className="flex items-center gap-8 pt-6">

@@ -78,12 +78,12 @@ const ContactForm = () => {
           email,
           phone: phoneDigits,
           message,
-          // Gửi email xác nhận tự động về cho khách
           botcheck: false,
         }),
       });
 
       const data = await res.json();
+
       if (!data.success) throw new Error(data.message || "Gửi thất bại");
 
       toast({
@@ -127,7 +127,7 @@ const ContactForm = () => {
               {[
                 { Icon: Mail, label: "Email", value: "tikamedia@gmail.com" },
                 { Icon: Phone, label: "Hotline", value: "037 631 6906" },
-                { Icon: MapPin, label: "Văn phòng", value: "Quận 1, TP. Hồ Chí Minh" },
+                { Icon: MapPin, label: "Văn phòng", value: "Quận 8, TP. Hồ Chí Minh" },
               ].map(({ Icon, label, value }, idx) => (
                 <Reveal key={label} delay={150 + idx * 120} as="li" className="flex items-start gap-3">
                   <div className="w-9 h-9 border border-primary/40 flex items-center justify-center text-primary shrink-0">
