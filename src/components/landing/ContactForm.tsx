@@ -1,5 +1,3 @@
-// Form liên hệ — validate bằng zod, gửi dữ liệu về edge function `send-contact-email`
-// Edge function này sẽ dùng Resend API để gửi email về hộp thư admin (kietduong611@gmail.com)
 import { useState } from "react";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
@@ -10,6 +8,9 @@ import { toast } from "@/hooks/use-toast";
 import { Send, Mail, Phone, MapPin } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import Reveal from "@/components/Reveal";
+
+// Lấy key tại web3forms.com (miễn phí, nhập email → nhận key qua email)
+const WEB3FORMS_KEY = "4e83c7f9-7e85-4345-acd8-1e50343287aa";
 
 const schema = z.object({
   name: z.string().trim().min(2, "Vui lòng nhập họ tên").max(100, "Tối đa 100 ký tự"),
@@ -53,37 +54,45 @@ const ContactForm = () => {
     setSubmitting(true);
 
     try {
-      // 1) Lưu lead vào database (chuẩn hoá phone về số thuần — bỏ ký tự đặc biệt)
-      const phoneDigits = result.data.phone.replace(/\D/g, "");
+      const { name, phone, email, message } = result.data;
+      const phoneDigits = phone.replace(/\D/g, "");
+
+      // 1) Lưu vào DB
       const { error: dbError } = await supabase.from("leads").insert({
-        full_name: result.data.name,
-        email: result.data.email,
+        full_name: name,
+        email,
         phone: phoneDigits,
-        message: result.data.message,
+        message,
       });
-      if (dbError) {
-        console.error("Lỗi lưu lead:", dbError);
-        // Không chặn flow gửi email nếu DB lỗi (validation fallback)
-      }
+      if (dbError) console.error("Lỗi lưu lead:", dbError);
 
-      // 2) Gửi email qua edge function
-      const { data, error } = await supabase.functions.invoke("send-contact-email", {
-        body: result.data,
+      // 2) Gửi email qua Web3Forms
+      const res = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          access_key: WEB3FORMS_KEY,
+          subject: `[TIKA] Yêu cầu tư vấn từ ${name}`,
+          from_name: "TIKA Network",
+          name,
+          email,
+          phone: phoneDigits,
+          message,
+          // Gửi email xác nhận tự động về cho khách
+          botcheck: false,
+        }),
       });
 
-      if (error) throw error;
-      if (data && (data as any).success === false) {
-        throw new Error((data as any).error || "Gửi yêu cầu thất bại");
-      }
+      const data = await res.json();
+      if (!data.success) throw new Error(data.message || "Gửi thất bại");
 
       toast({
         title: "Đã gửi yêu cầu tư vấn",
         description: "Cảm ơn bạn! TIKA Network sẽ liên hệ trong thời gian sớm nhất.",
       });
-      // Reset form sau khi gửi thành công
       setForm({ name: "", phone: "", email: "", message: "" });
     } catch (err) {
-      console.error("Lỗi gửi form liên hệ:", err);
+      console.error("Lỗi gửi form:", err);
       toast({
         title: "Không gửi được yêu cầu",
         description: "Vui lòng thử lại sau hoặc liên hệ trực tiếp qua hotline.",
