@@ -130,7 +130,7 @@ const Services = () => {
 
   return (
     <section id="services" className="py-24 md:py-32 bg-[#f7f4f0] relative overflow-hidden">
-      <div className="container relative max-w-5xl">
+        <div className="container relative">
         <Reveal className="max-w-3xl mx-auto text-center mb-16">
           <span className="inline-block text-sm md:text-base font-medium uppercase tracking-[0.3em] text-primary mb-5">
             — Dịch vụ của chúng tôi —
@@ -146,13 +146,13 @@ const Services = () => {
         </Reveal>
 
         {items.length === 0 ? (
-          <div className="flex flex-col gap-6">
+          <div className="flex flex-col gap-6 w-full ">
             {[0, 1, 2].map((i) => (
               <div key={i} className="h-64 rounded-2xl bg-white/60 animate-pulse" />
             ))}
           </div>
         ) : (
-          <div className="flex flex-col gap-6">
+          <div className="flex flex-col gap-6 w-full ">
             {items.map((s, idx) => {
               const Icon = getIcon(s.icon);
               const num = String(idx + 1).padStart(2, "0");
