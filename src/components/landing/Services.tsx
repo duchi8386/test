@@ -48,25 +48,27 @@ const STATIC_STORE = [
 
 function MediaItem({ item, index, isPhone }: { item: ServiceMedia; index: number; isPhone: boolean }) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [playing, setPlaying] = useState(false);
   const isVideo = item.type === "video";
 
-  const handleMouseEnter = () => {
-    if (videoRef.current) {
-      videoRef.current.play().catch(() => {});
-    }
-  };
-  const handleMouseLeave = () => {
-    if (videoRef.current) {
+  const handleClick = () => {
+    if (!videoRef.current) return;
+    if (playing) {
       videoRef.current.pause();
-      videoRef.current.currentTime = 0;
+      setPlaying(false);
+    } else {
+      videoRef.current.muted = false;
+      videoRef.current.play().catch(() => {});
+      setPlaying(true);
     }
   };
+
+  const handleEnded = () => setPlaying(false);
 
   return (
     <div
       className={`group/vid relative overflow-hidden rounded-xl flex-1 cursor-pointer ${isPhone ? "aspect-[9/16]" : "aspect-[3/4]"} ${index === 0 && isPhone ? "scale-105 z-10 shadow-lg" : ""}`}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
+      onClick={handleClick}
     >
       {isVideo ? (
         <video
@@ -76,7 +78,8 @@ function MediaItem({ item, index, isPhone }: { item: ServiceMedia; index: number
           muted
           loop
           playsInline
-          preload="none"
+          preload="metadata"
+          onEnded={handleEnded}
           className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover/vid:scale-110"
         />
       ) : (
@@ -88,12 +91,19 @@ function MediaItem({ item, index, isPhone }: { item: ServiceMedia; index: number
       )}
       <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent transition-opacity duration-300 group-hover/vid:from-black/65" />
 
+      {/* Play / Pause button */}
       {isVideo && (
-        <div className="absolute inset-0 flex items-center justify-center group-hover/vid:opacity-0 transition-opacity duration-300">
-          <div className="w-9 h-9 rounded-full bg-white/30 backdrop-blur-sm flex items-center justify-center">
-            <svg className="w-4 h-4 text-white fill-white ml-0.5" viewBox="0 0 24 24">
-              <path d="M8 5v14l11-7z" />
-            </svg>
+        <div className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 ${playing ? "opacity-0 group-hover/vid:opacity-100" : "opacity-100"}`}>
+          <div className="w-10 h-10 rounded-full bg-white/30 backdrop-blur-sm flex items-center justify-center group-hover/vid:bg-white/50 transition-all duration-300 group-hover/vid:scale-110">
+            {playing ? (
+              <svg className="w-4 h-4 text-white fill-white" viewBox="0 0 24 24">
+                <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+              </svg>
+            ) : (
+              <svg className="w-4 h-4 text-white fill-white ml-0.5" viewBox="0 0 24 24">
+                <path d="M8 5v14l11-7z" />
+              </svg>
+            )}
           </div>
         </div>
       )}
