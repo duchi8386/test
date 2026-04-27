@@ -30,21 +30,6 @@ const getIcon = (name: string | null | undefined): LucideIcon => {
   return Comp ?? Sparkles;
 };
 
-// Static media for service index 0 (KOL grid) and index 2 (Store) — not managed from DB
-const STATIC_KOL = [
-  { url: "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=300&h=400&fit=crop", name: "Linh Anh", tag: "BEAUTY · 606K" },
-  { url: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=300&h=400&fit=crop", name: "Minh Tú", tag: "LIFESTYLE · 826K" },
-  { url: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=300&h=400&fit=crop", name: "Hà My", tag: "FOOD · 1.2M" },
-  { url: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&h=400&fit=crop", name: "Quang Huy", tag: "FITNESS · 405K" },
-  { url: "https://images.unsplash.com/photo-1552058544-f2b08422138a?w=300&h=400&fit=crop", name: "Mai Phương", tag: "FAMILY · 921K" },
-  { url: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=300&h=400&fit=crop", name: "Bảo Trân", tag: "FASHION · 1.8M" },
-];
-
-const STATIC_STORE = [
-  { url: "https://images.unsplash.com/photo-1445116572660-236099ec97a0?w=400&h=500&fit=crop", label: "Check-in quán mới 🔥" },
-  { url: "https://images.unsplash.com/photo-1559925393-8be0ec4767c8?w=400&h=500&fit=crop", label: "Live tại store 💄" },
-  { url: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=400&h=500&fit=crop", label: "Ăn gì hôm nay nè!" },
-];
 
 function MediaItem({ item, index, isPhone }: { item: ServiceMedia; index: number; isPhone: boolean }) {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -122,20 +107,29 @@ function MediaItem({ item, index, isPhone }: { item: ServiceMedia; index: number
   );
 }
 
-function KolGrid() {
+function KolGrid({ media }: { media: ServiceMedia[] }) {
+  if (media.length === 0) {
+    return (
+      <div className="grid grid-cols-3 gap-2 w-full">
+        {[...Array(6)].map((_, i) => (
+          <div key={i} className="aspect-[3/4] rounded-md bg-[#f0ebe3] animate-pulse" />
+        ))}
+      </div>
+    );
+  }
   return (
     <div className="grid grid-cols-3 gap-2 w-full">
-      {STATIC_KOL.map((kol, i) => (
-        <div key={i} className="group/img relative overflow-hidden rounded-md aspect-[3/4] cursor-pointer">
+      {media.map((item, i) => (
+        <div key={item.id} className="group/img relative overflow-hidden rounded-md aspect-[3/4] cursor-pointer">
           <img
-            src={kol.url}
-            alt={kol.name}
+            src={item.url}
+            alt={item.label ?? ""}
             className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover/img:scale-110"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent transition-opacity duration-300 group-hover/img:from-black/75" />
           <div className="absolute bottom-1.5 left-2 transition-transform duration-300 group-hover/img:-translate-y-1">
-            <p className="text-white text-[10px] font-semibold leading-tight">{kol.name}</p>
-            <p className="text-white/70 text-[9px] leading-tight">{kol.tag}</p>
+            <p className="text-white text-[10px] font-semibold leading-tight">{item.label}</p>
+            {item.handle && <p className="text-white/70 text-[9px] leading-tight">{item.handle}</p>}
           </div>
         </div>
       ))}
@@ -143,37 +137,20 @@ function KolGrid() {
   );
 }
 
-function StoreGrid() {
-  return (
-    <div className="flex gap-2 w-full justify-center">
-      {STATIC_STORE.map((item, i) => (
-        <div key={i} className="group/vid relative overflow-hidden rounded-xl flex-1 aspect-[3/4] cursor-pointer">
-          <img
-            src={item.url}
-            alt={item.label}
-            className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover/vid:scale-110"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent transition-opacity duration-300 group-hover/vid:from-black/65" />
-          <div className="absolute inset-0 flex items-center justify-center group-hover/vid:opacity-0 transition-opacity duration-300">
-            <div className="w-9 h-9 rounded-full bg-white/30 backdrop-blur-sm flex items-center justify-center">
-              <svg className="w-4 h-4 text-white fill-white ml-0.5" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
-            </div>
-          </div>
-          <div className="absolute bottom-2 left-2 right-2 transition-transform duration-300 group-hover/vid:-translate-y-1">
-            <p className="text-white text-[9px] font-medium leading-tight truncate">{item.label}</p>
-            <p className="text-white/60 text-[8px]">@tika.network</p>
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function VideoGrid({ media }: { media: ServiceMedia[] }) {
+function MediaGrid({ media, isPhone }: { media: ServiceMedia[]; isPhone: boolean }) {
+  if (media.length === 0) {
+    return (
+      <div className="flex gap-2 w-full justify-center">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className={`flex-1 ${isPhone ? "aspect-[9/16]" : "aspect-[3/4]"} rounded-xl bg-[#f0ebe3] animate-pulse ${i === 1 && isPhone ? "scale-105" : ""}`} />
+        ))}
+      </div>
+    );
+  }
   return (
     <div className="flex gap-2 w-full justify-center">
       {media.map((item, i) => (
-        <MediaItem key={item.id} item={item} index={i} isPhone={true} />
+        <MediaItem key={item.id} item={item} index={i} isPhone={isPhone} />
       ))}
     </div>
   );
@@ -241,19 +218,11 @@ const Services = () => {
 
               const mediaEl =
                 idx === 0 ? (
-                  <KolGrid />
+                  <KolGrid media={media} />
                 ) : idx === 1 ? (
-                  media.length > 0 ? (
-                    <VideoGrid media={media} />
-                  ) : (
-                    <div className="flex gap-2 w-full justify-center">
-                      {[1, 2, 3].map((i) => (
-                        <div key={i} className={`flex-1 aspect-[9/16] rounded-xl bg-[#f0ebe3] animate-pulse ${i === 1 ? "scale-105" : ""}`} />
-                      ))}
-                    </div>
-                  )
+                  <MediaGrid media={media} isPhone={true} />
                 ) : (
-                  <StoreGrid />
+                  <MediaGrid media={media} isPhone={false} />
                 );
 
               return (
