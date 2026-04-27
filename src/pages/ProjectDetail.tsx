@@ -100,7 +100,7 @@ const ProjectDetail = () => {
                   key={idx}
                   type="button"
                   onClick={() => setLightboxIdx(idx)}
-                  className="group overflow-hidden bg-muted aspect-[4/3] focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                  className="group overflow-hidden bg-muted aspect-[9/16] focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                 >
                   <img
                     src={url}
