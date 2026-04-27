@@ -17,7 +17,7 @@ const Stats = () => {
               — Những con số —
             </span>
             <h2 className="font-display font-medium text-4xl md:text-6xl leading-[1.4] md:leading-[1.3] py-4 mb-8">
-              Quy mô lớn nhất.<br />
+            Minh chứng cho sự tin tưởng<br />
               <span className="text-gold italic inline-block mt-3">Niềm tin vững chắc.</span>
             </h2>
             <div className="gold-divider w-24 mb-6" />
