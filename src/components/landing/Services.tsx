@@ -67,10 +67,14 @@ function KolGrid() {
   return (
     <div className="grid grid-cols-3 gap-2 w-full">
       {imgs.map((src, i) => (
-        <div key={i} className="relative overflow-hidden rounded-md aspect-[3/4]">
-          <img src={src} alt={KOL_NAMES[i]?.name} className="w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-          <div className="absolute bottom-1.5 left-2">
+        <div key={i} className="group/img relative overflow-hidden rounded-md aspect-[3/4] cursor-pointer">
+          <img
+            src={src}
+            alt={KOL_NAMES[i]?.name}
+            className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover/img:scale-110"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent transition-opacity duration-300 group-hover/img:from-black/75" />
+          <div className="absolute bottom-1.5 left-2 transition-transform duration-300 group-hover/img:-translate-y-1">
             <p className="text-white text-[10px] font-semibold leading-tight">{KOL_NAMES[i]?.name}</p>
             <p className="text-white/70 text-[9px] leading-tight">{KOL_NAMES[i]?.tag}</p>
           </div>
@@ -88,13 +92,17 @@ function VideoGrid({ imgIndex, labels }: { imgIndex: number; labels: typeof VIDE
       {imgs.map((src, i) => (
         <div
           key={i}
-          className={`relative overflow-hidden rounded-xl flex-1 ${isPhone ? "aspect-[9/16]" : "aspect-[3/4]"} ${i === 0 && isPhone ? "scale-105 z-10 shadow-lg" : ""}`}
+          className={`group/vid relative overflow-hidden rounded-xl flex-1 cursor-pointer ${isPhone ? "aspect-[9/16]" : "aspect-[3/4]"} ${i === 0 && isPhone ? "scale-105 z-10 shadow-lg" : ""}`}
         >
-          <img src={src} alt={labels[i]?.label} className="w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+          <img
+            src={src}
+            alt={labels[i]?.label}
+            className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover/vid:scale-110"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent transition-opacity duration-300 group-hover/vid:from-black/65" />
           {/* Play button */}
           <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-9 h-9 rounded-full bg-white/30 backdrop-blur-sm flex items-center justify-center">
+            <div className="w-9 h-9 rounded-full bg-white/30 backdrop-blur-sm flex items-center justify-center transition-all duration-300 group-hover/vid:scale-110 group-hover/vid:bg-white/50">
               <svg className="w-4 h-4 text-white fill-white ml-0.5" viewBox="0 0 24 24">
                 <path d="M8 5v14l11-7z" />
               </svg>
@@ -106,7 +114,7 @@ function VideoGrid({ imgIndex, labels }: { imgIndex: number; labels: typeof VIDE
             <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
             <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg>
           </div>
-          <div className="absolute bottom-2 left-2 right-6">
+          <div className="absolute bottom-2 left-2 right-6 transition-transform duration-300 group-hover/vid:-translate-y-1">
             <p className="text-white text-[9px] font-medium leading-tight truncate">{labels[i]?.label}</p>
             <p className="text-white/60 text-[8px]">{labels[i]?.handle}</p>
           </div>
@@ -177,31 +185,34 @@ const Services = () => {
                       </div>
 
                       {/* Text side */}
-                      <div className="md:w-1/2 p-8 md:p-10 flex flex-col justify-center relative">
+                      <div className="md:w-1/2 p-10 md:p-14 flex flex-col justify-center relative overflow-hidden">
                         {/* Step number watermark */}
-                        <span className="absolute top-4 right-6 font-display text-7xl font-bold text-[#e8d5b0]/60 leading-none select-none">
+                        <span className="absolute top-3 right-5 font-display text-[6rem] font-bold text-[#e8d5b0]/50 leading-none select-none pointer-events-none">
                           {num}
                         </span>
 
                         {/* Icon badge */}
-                        <div className="w-10 h-10 border border-[#c9a96e]/40 rounded-md flex items-center justify-center text-[#c9a96e] mb-5">
+                        <div className="w-11 h-11 border border-[#c9a96e]/50 rounded-xl flex items-center justify-center text-[#c9a96e] mb-6 bg-[#fdf8f2]">
                           <Icon className="w-5 h-5" strokeWidth={1.5} />
                         </div>
 
-                        <h3 className="font-display text-2xl md:text-3xl font-semibold mb-3 leading-snug text-[#1a1a1a]">
+                        <h3 className="font-display text-3xl md:text-4xl font-semibold mb-2 leading-tight tracking-tight text-[#1a1a1a]">
                           {s.name}
                         </h3>
 
+                        {/* Gold underline accent */}
+                        <div className="w-10 h-[2px] bg-[#c9a96e] rounded-full mb-5" />
+
                         {s.description && (
-                          <p className="text-[#6b6b6b] text-sm leading-relaxed mb-6">
+                          <p className="text-[#737373] text-[15px] leading-[1.75] mb-7 max-w-xs">
                             {s.description}
                           </p>
                         )}
 
                         {s.price_range && (
                           <div>
-                            <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.15em] text-[#1a1a1a] border border-[#1a1a1a]/20 rounded-full px-3 py-1">
-                              <span className="text-[#c9a96e]">●</span>
+                            <span className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-[#1a1a1a] border border-[#1a1a1a]/15 rounded-full px-4 py-1.5 bg-white/80 backdrop-blur-sm shadow-sm hover:border-[#c9a96e]/60 hover:text-[#c9a96e] transition-colors duration-200 cursor-default">
+                              <span className="w-1.5 h-1.5 rounded-full bg-[#c9a96e] inline-block" />
                               {s.price_range}
                             </span>
                           </div>
