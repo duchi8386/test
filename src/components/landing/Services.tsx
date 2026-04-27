@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as Icons from "lucide-react";
 import { Sparkles, type LucideIcon } from "lucide-react";
 import Reveal from "@/components/Reveal";
@@ -13,70 +13,119 @@ interface Service {
   sort_order: number | null;
 }
 
+interface ServiceMedia {
+  id: string;
+  service_id: string;
+  type: string;
+  url: string;
+  thumbnail_url: string | null;
+  label: string | null;
+  handle: string | null;
+  sort_order: number;
+}
+
 const getIcon = (name: string | null | undefined): LucideIcon => {
   if (!name) return Sparkles;
   const Comp = (Icons as unknown as Record<string, LucideIcon>)[name];
   return Comp ?? Sparkles;
 };
 
-// Replace these URLs with your actual images
-const SERVICE_IMAGES: string[][] = [
-  [
-    "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=300&h=300&fit=crop",
-    "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=300&h=300&fit=crop",
-    "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=300&h=300&fit=crop",
-    "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&h=300&fit=crop",
-    "https://images.unsplash.com/photo-1552058544-f2b08422138a?w=300&h=300&fit=crop",
-    "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=300&h=300&fit=crop",
-  ],
-  [
-    "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=400&h=600&fit=crop",
-    "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400&h=600&fit=crop",
-    "https://images.unsplash.com/photo-1492681290082-e932832941e6?w=400&h=600&fit=crop",
-  ],
-  [
-    "https://images.unsplash.com/photo-1445116572660-236099ec97a0?w=400&h=500&fit=crop",
-    "https://images.unsplash.com/photo-1559925393-8be0ec4767c8?w=400&h=500&fit=crop",
-    "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=400&h=500&fit=crop",
-  ],
+// Static media for service index 0 (KOL grid) and index 2 (Store) — not managed from DB
+const STATIC_KOL = [
+  { url: "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=300&h=400&fit=crop", name: "Linh Anh", tag: "BEAUTY · 606K" },
+  { url: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=300&h=400&fit=crop", name: "Minh Tú", tag: "LIFESTYLE · 826K" },
+  { url: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=300&h=400&fit=crop", name: "Hà My", tag: "FOOD · 1.2M" },
+  { url: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&h=400&fit=crop", name: "Quang Huy", tag: "FITNESS · 405K" },
+  { url: "https://images.unsplash.com/photo-1552058544-f2b08422138a?w=300&h=400&fit=crop", name: "Mai Phương", tag: "FAMILY · 921K" },
+  { url: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=300&h=400&fit=crop", name: "Bảo Trân", tag: "FASHION · 1.8M" },
 ];
 
-const KOL_NAMES = [
-  { name: "Linh Anh", tag: "BEAUTY · 606K" },
-  { name: "Minh Tú", tag: "LIFESTYLE · 826K" },
-  { name: "Hà My", tag: "FOOD · 1.2M" },
-  { name: "Quang Huy", tag: "FITNESS · 405K" },
-  { name: "Mai Phương", tag: "FAMILY · 921K" },
-  { name: "Bảo Trân", tag: "FASHION · 1.8M" },
+const STATIC_STORE = [
+  { url: "https://images.unsplash.com/photo-1445116572660-236099ec97a0?w=400&h=500&fit=crop", label: "Check-in quán mới 🔥" },
+  { url: "https://images.unsplash.com/photo-1559925393-8be0ec4767c8?w=400&h=500&fit=crop", label: "Live tại store 💄" },
+  { url: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=400&h=500&fit=crop", label: "Ăn gì hôm nay nè!" },
 ];
 
-const VIDEO_LABELS = [
-  { label: "Review serum mới về ♥", handle: "@tika.network" },
-  { label: "Unbox bất ngờ 🎁", handle: "@tika.network" },
-  { label: "Test thử có ngon không?", handle: "@tika.network" },
-];
+function MediaItem({ item, index, isPhone }: { item: ServiceMedia; index: number; isPhone: boolean }) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const isVideo = item.type === "video";
 
-const STORE_LABELS = [
-  { label: "Check-in quán mới 🔥", handle: "@tika.network" },
-  { label: "Live tại store 💄", handle: "@tika.network" },
-  { label: "Ăn gì hôm nay nè!", handle: "@tika.network" },
-];
+  const handleMouseEnter = () => {
+    if (videoRef.current) {
+      videoRef.current.play().catch(() => {});
+    }
+  };
+  const handleMouseLeave = () => {
+    if (videoRef.current) {
+      videoRef.current.pause();
+      videoRef.current.currentTime = 0;
+    }
+  };
+
+  return (
+    <div
+      className={`group/vid relative overflow-hidden rounded-xl flex-1 cursor-pointer ${isPhone ? "aspect-[9/16]" : "aspect-[3/4]"} ${index === 0 && isPhone ? "scale-105 z-10 shadow-lg" : ""}`}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
+      {isVideo ? (
+        <video
+          ref={videoRef}
+          src={item.url}
+          poster={item.thumbnail_url ?? undefined}
+          muted
+          loop
+          playsInline
+          preload="none"
+          className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover/vid:scale-110"
+        />
+      ) : (
+        <img
+          src={item.url}
+          alt={item.label ?? ""}
+          className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover/vid:scale-110"
+        />
+      )}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent transition-opacity duration-300 group-hover/vid:from-black/65" />
+
+      {isVideo && (
+        <div className="absolute inset-0 flex items-center justify-center group-hover/vid:opacity-0 transition-opacity duration-300">
+          <div className="w-9 h-9 rounded-full bg-white/30 backdrop-blur-sm flex items-center justify-center">
+            <svg className="w-4 h-4 text-white fill-white ml-0.5" viewBox="0 0 24 24">
+              <path d="M8 5v14l11-7z" />
+            </svg>
+          </div>
+        </div>
+      )}
+
+      {/* TikTok-like side icons */}
+      <div className="absolute right-1.5 bottom-16 flex flex-col items-center gap-3">
+        <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+        <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+        <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg>
+      </div>
+      <div className="absolute bottom-2 left-2 right-6 transition-transform duration-300 group-hover/vid:-translate-y-1">
+        {item.label && <p className="text-white text-[9px] font-medium leading-tight truncate">{item.label}</p>}
+        {item.handle && <p className="text-white/60 text-[8px]">{item.handle}</p>}
+      </div>
+    </div>
+  );
+}
 
 function KolGrid() {
-  const imgs = SERVICE_IMAGES[0];
   return (
     <div className="grid grid-cols-3 gap-2 w-full">
-      {imgs.map((src, i) => (
+      {STATIC_KOL.map((kol, i) => (
         <div key={i} className="group/img relative overflow-hidden rounded-md aspect-[3/4] cursor-pointer">
           <img
-            src={src}
-            alt={KOL_NAMES[i]?.name}
+            src={kol.url}
+            alt={kol.name}
             className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover/img:scale-110"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent transition-opacity duration-300 group-hover/img:from-black/75" />
           <div className="absolute bottom-1.5 left-2 transition-transform duration-300 group-hover/img:-translate-y-1">
-            <p className="text-white text-[10px] font-semibold leading-tight">{KOL_NAMES[i]?.name}</p>
-            <p className="text-white/70 text-[9px] leading-tight">{KOL_NAMES[i]?.tag}</p>
+            <p className="text-white text-[10px] font-semibold leading-tight">{kol.name}</p>
+            <p className="text-white/70 text-[9px] leading-tight">{kol.tag}</p>
           </div>
         </div>
       ))}
@@ -84,41 +133,37 @@ function KolGrid() {
   );
 }
 
-function VideoGrid({ imgIndex, labels }: { imgIndex: number; labels: typeof VIDEO_LABELS }) {
-  const imgs = SERVICE_IMAGES[imgIndex];
-  const isPhone = imgIndex === 1;
+function StoreGrid() {
   return (
     <div className="flex gap-2 w-full justify-center">
-      {imgs.map((src, i) => (
-        <div
-          key={i}
-          className={`group/vid relative overflow-hidden rounded-xl flex-1 cursor-pointer ${isPhone ? "aspect-[9/16]" : "aspect-[3/4]"} ${i === 0 && isPhone ? "scale-105 z-10 shadow-lg" : ""}`}
-        >
+      {STATIC_STORE.map((item, i) => (
+        <div key={i} className="group/vid relative overflow-hidden rounded-xl flex-1 aspect-[3/4] cursor-pointer">
           <img
-            src={src}
-            alt={labels[i]?.label}
+            src={item.url}
+            alt={item.label}
             className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover/vid:scale-110"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent transition-opacity duration-300 group-hover/vid:from-black/65" />
-          {/* Play button */}
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-9 h-9 rounded-full bg-white/30 backdrop-blur-sm flex items-center justify-center transition-all duration-300 group-hover/vid:scale-110 group-hover/vid:bg-white/50">
-              <svg className="w-4 h-4 text-white fill-white ml-0.5" viewBox="0 0 24 24">
-                <path d="M8 5v14l11-7z" />
-              </svg>
+          <div className="absolute inset-0 flex items-center justify-center group-hover/vid:opacity-0 transition-opacity duration-300">
+            <div className="w-9 h-9 rounded-full bg-white/30 backdrop-blur-sm flex items-center justify-center">
+              <svg className="w-4 h-4 text-white fill-white ml-0.5" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
             </div>
           </div>
-          {/* TikTok-like side icons */}
-          <div className="absolute right-1.5 bottom-16 flex flex-col items-center gap-3">
-            <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-            <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
-            <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg>
-          </div>
-          <div className="absolute bottom-2 left-2 right-6 transition-transform duration-300 group-hover/vid:-translate-y-1">
-            <p className="text-white text-[9px] font-medium leading-tight truncate">{labels[i]?.label}</p>
-            <p className="text-white/60 text-[8px]">{labels[i]?.handle}</p>
+          <div className="absolute bottom-2 left-2 right-2 transition-transform duration-300 group-hover/vid:-translate-y-1">
+            <p className="text-white text-[9px] font-medium leading-tight truncate">{item.label}</p>
+            <p className="text-white/60 text-[8px]">@tika.network</p>
           </div>
         </div>
+      ))}
+    </div>
+  );
+}
+
+function VideoGrid({ media }: { media: ServiceMedia[] }) {
+  return (
+    <div className="flex gap-2 w-full justify-center">
+      {media.map((item, i) => (
+        <MediaItem key={item.id} item={item} index={i} isPhone={true} />
       ))}
     </div>
   );
@@ -126,6 +171,7 @@ function VideoGrid({ imgIndex, labels }: { imgIndex: number; labels: typeof VIDE
 
 const Services = () => {
   const [items, setItems] = useState<Service[]>([]);
+  const [mediaMap, setMediaMap] = useState<Record<string, ServiceMedia[]>>({});
 
   useEffect(() => {
     supabase
@@ -134,6 +180,22 @@ const Services = () => {
       .order("sort_order", { ascending: true })
       .order("name", { ascending: true })
       .then(({ data }) => setItems(data ?? []));
+
+    supabase
+      .from("service_media")
+      .select("id,service_id,type,url,thumbnail_url,label,handle,sort_order")
+      .order("sort_order", { ascending: true })
+      .then(({ data, error }) => {
+        console.log("[service_media] data:", data);
+        console.log("[service_media] error:", error);
+        const grouped: Record<string, ServiceMedia[]> = {};
+        for (const row of data ?? []) {
+          if (!grouped[row.service_id]) grouped[row.service_id] = [];
+          grouped[row.service_id].push(row);
+        }
+        console.log("[service_media] grouped:", grouped);
+        setMediaMap(grouped);
+      });
   }, []);
 
   return (
@@ -165,14 +227,23 @@ const Services = () => {
               const Icon = getIcon(s.icon);
               const num = String(idx + 1).padStart(2, "0");
               const isEven = idx % 2 === 1;
+              const media = mediaMap[s.id] ?? [];
 
               const mediaEl =
                 idx === 0 ? (
                   <KolGrid />
                 ) : idx === 1 ? (
-                  <VideoGrid imgIndex={1} labels={VIDEO_LABELS} />
+                  media.length > 0 ? (
+                    <VideoGrid media={media} />
+                  ) : (
+                    <div className="flex gap-2 w-full justify-center">
+                      {[1, 2, 3].map((i) => (
+                        <div key={i} className={`flex-1 aspect-[9/16] rounded-xl bg-[#f0ebe3] animate-pulse ${i === 1 ? "scale-105" : ""}`} />
+                      ))}
+                    </div>
+                  )
                 ) : (
-                  <VideoGrid imgIndex={2} labels={STORE_LABELS} />
+                  <StoreGrid />
                 );
 
               return (

@@ -145,6 +145,53 @@ export type Database = {
           },
         ]
       }
+      service_media: {
+        Row: {
+          created_at: string
+          handle: string | null
+          id: string
+          label: string | null
+          service_id: string
+          sort_order: number
+          thumbnail_url: string | null
+          type: string
+          updated_at: string
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          handle?: string | null
+          id?: string
+          label?: string | null
+          service_id: string
+          sort_order?: number
+          thumbnail_url?: string | null
+          type?: string
+          updated_at?: string
+          url: string
+        }
+        Update: {
+          created_at?: string
+          handle?: string | null
+          id?: string
+          label?: string | null
+          service_id?: string
+          sort_order?: number
+          thumbnail_url?: string | null
+          type?: string
+          updated_at?: string
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_media_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       services: {
         Row: {
           created_at: string
