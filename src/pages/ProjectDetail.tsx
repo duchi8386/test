@@ -1,6 +1,6 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link, useParams, Navigate } from "react-router-dom";
-import { ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, Loader2, X, ChevronLeft, ChevronRight } from "lucide-react";
 import Navbar from "@/components/landing/Navbar";
 import Footer from "@/components/landing/Footer";
 import FloatingActions from "@/components/landing/FloatingActions";
@@ -11,11 +11,25 @@ const ProjectDetail = () => {
   const { id } = useParams<{ id: string }>();
   const { data: project, isLoading, isError } = usePublicProjectById(id);
   const { data: list = [] } = usePublicProjectsList();
+  const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
+
+  const gallery = Array.isArray(project?.gallery_urls) ? (project.gallery_urls as string[]) : [];
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
     if (project) document.title = `${project.title} | TIKA Network`;
   }, [project]);
+
+  useEffect(() => {
+    if (lightboxIdx === null) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setLightboxIdx(null);
+      if (e.key === "ArrowRight") setLightboxIdx((i) => (i === null ? 0 : (i + 1) % gallery.length));
+      if (e.key === "ArrowLeft") setLightboxIdx((i) => (i === null ? 0 : (i - 1 + gallery.length) % gallery.length));
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [lightboxIdx, gallery.length]);
 
   if (isLoading) {
     return (
@@ -74,6 +88,32 @@ const ProjectDetail = () => {
           </div>
         </section>
 
+        {/* Gallery */}
+        {gallery.length > 0 && (
+          <section className="container py-12 md:py-16">
+            <div className="text-[11px] uppercase tracking-[0.3em] text-foreground/50 mb-6">
+              Thư viện ảnh
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
+              {gallery.map((url, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => setLightboxIdx(idx)}
+                  className="group overflow-hidden bg-muted aspect-[4/3] focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                >
+                  <img
+                    src={url}
+                    alt={`${project!.title} — ${idx + 1}`}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    loading="lazy"
+                  />
+                </button>
+              ))}
+            </div>
+          </section>
+        )}
+
         {/* Next + CTA */}
         <section className="border-t border-border/60">
           <div className="container py-12 md:py-16">
@@ -108,6 +148,61 @@ const ProjectDetail = () => {
       </main>
       <Footer />
       <FloatingActions />
+
+      {/* Lightbox */}
+      {lightboxIdx !== null && gallery.length > 0 && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90"
+          onClick={() => setLightboxIdx(null)}
+        >
+          {/* Close */}
+          <button
+            type="button"
+            onClick={() => setLightboxIdx(null)}
+            className="absolute top-4 right-4 text-white/70 hover:text-white transition-colors"
+            aria-label="Đóng"
+          >
+            <X className="w-7 h-7" />
+          </button>
+
+          {/* Prev */}
+          {gallery.length > 1 && (
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); setLightboxIdx((lightboxIdx - 1 + gallery.length) % gallery.length); }}
+              className="absolute left-3 md:left-6 text-white/70 hover:text-white transition-colors"
+              aria-label="Ảnh trước"
+            >
+              <ChevronLeft className="w-9 h-9" />
+            </button>
+          )}
+
+          {/* Image */}
+          <img
+            src={gallery[lightboxIdx]}
+            alt={`${project!.title} — ${lightboxIdx + 1}`}
+            className="max-h-[90vh] max-w-[90vw] object-contain select-none"
+            onClick={(e) => e.stopPropagation()}
+          />
+
+          {/* Next */}
+          {gallery.length > 1 && (
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); setLightboxIdx((lightboxIdx + 1) % gallery.length); }}
+              className="absolute right-3 md:right-6 text-white/70 hover:text-white transition-colors"
+              aria-label="Ảnh tiếp"
+            >
+              <ChevronRight className="w-9 h-9" />
+            </button>
+          )}
+
+          {/* Counter */}
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/50 text-xs tracking-widest">
+            {lightboxIdx + 1} / {gallery.length}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

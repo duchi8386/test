@@ -6,6 +6,7 @@ export type PublicProject = {
   title: string;
   description: string | null;
   image_url: string | null;
+  gallery_urls: string[] | null;
   year: string | null;
   brands: { name: string } | null;
 };
@@ -32,7 +33,7 @@ export function usePublicProjectById(id: string | undefined) {
       if (!id) return null;
       const { data, error } = await supabase
         .from("projects")
-        .select("id, title, description, image_url, year, brands(name)")
+        .select("id, title, description, image_url, gallery_urls, year, brands(name)")
         .eq("id", id)
         .maybeSingle();
       if (error) throw error;
