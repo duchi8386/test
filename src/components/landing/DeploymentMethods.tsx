@@ -176,6 +176,7 @@ const DeploymentMethods = () => (
       <Reveal delay={500} className="mt-12 text-center">
         {/* <p className="text-sm text-foreground/40 font-light tracking-wide">
           6 hình thức · Phủ sóng đa nền tảng · Tùy chỉnh theo chiến dịch
+          6 hình thức · Phủ sóng đa nền tảng · Tùy chỉnh theo chiến dịch
         </p> */}
       </Reveal>
     </div>
