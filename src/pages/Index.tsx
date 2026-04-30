@@ -5,6 +5,7 @@ import Hero from "@/components/landing/Hero";
 import LogoMarquee from "@/components/landing/LogoMarquee";
 import Services from "@/components/landing/Services";
 import Stats from "@/components/landing/Stats";
+import DeploymentMethods from "@/components/landing/DeploymentMethods";
 import HowItWorks from "@/components/landing/HowItWorks";
 import CTA from "@/components/landing/CTA";
 import ContactForm from "@/components/landing/ContactForm";
@@ -34,6 +35,7 @@ const Index = () => {
         <Hero />
         <LogoMarquee />
         <Stats />
+        <DeploymentMethods />
         <Services />
         <HowItWorks />
         <ContactForm />
