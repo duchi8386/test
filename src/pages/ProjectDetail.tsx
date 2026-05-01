@@ -73,7 +73,7 @@ const ProjectDetail = () => {
 
         {/* Cover image */}
         <section className="container">
-          <div className="overflow-hidden bg-muted aspect-[16/9]">
+          {/* <div className="overflow-hidden bg-muted aspect-[16/9]">
             {project.image_url ? (
               <img
                 src={project.image_url}
@@ -85,7 +85,7 @@ const ProjectDetail = () => {
                 Chưa có ảnh bìa
               </div>
             )}
-          </div>
+          </div> */}
         </section>
 
         {/* Gallery */}

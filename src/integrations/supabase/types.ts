@@ -106,7 +106,6 @@ export type Database = {
           gallery_urls: Json
           id: string
           image_url: string | null
-          slug: string
           title: string
           updated_at: string
           year: string | null
@@ -118,7 +117,6 @@ export type Database = {
           gallery_urls?: Json
           id?: string
           image_url?: string | null
-          slug: string
           title: string
           updated_at?: string
           year?: string | null
@@ -130,7 +128,6 @@ export type Database = {
           gallery_urls?: Json
           id?: string
           image_url?: string | null
-          slug?: string
           title?: string
           updated_at?: string
           year?: string | null

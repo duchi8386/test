@@ -6,9 +6,28 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { toast } from "@/hooks/use-toast";
 import { Plus, Pencil, Trash2, Upload, Loader2, X, Images } from "lucide-react";
 import { z } from "zod";
@@ -24,7 +43,10 @@ interface Project {
   brands?: { name: string } | null;
 }
 
-interface Brand { id: string; name: string }
+interface Brand {
+  id: string;
+  name: string;
+}
 
 const schema = z.object({
   title: z.string().trim().min(1, "Tiêu đề là bắt buộc").max(200),
@@ -41,7 +63,14 @@ const Projects = () => {
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Project | null>(null);
-  const [form, setForm] = useState({ title: "", brand_id: "", description: "", year: "", image_url: "", gallery_urls: [] as string[] });
+  const [form, setForm] = useState({
+    title: "",
+    brand_id: "",
+    description: "",
+    year: "",
+    image_url: "",
+    gallery_urls: [] as string[],
+  });
   const [uploading, setUploading] = useState(false);
   const [uploadingGallery, setUploadingGallery] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -49,7 +78,10 @@ const Projects = () => {
   const load = async () => {
     setLoading(true);
     const [pRes, bRes] = await Promise.all([
-      supabase.from("projects").select("*, brands(name)").order("created_at", { ascending: false }),
+      supabase
+        .from("projects")
+        .select("*, brands(name)")
+        .order("created_at", { ascending: false }),
       supabase.from("brands").select("id, name").order("name"),
     ]);
     setItems((pRes.data as any) ?? []);
@@ -57,11 +89,20 @@ const Projects = () => {
     setLoading(false);
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    load();
+  }, []);
 
   const openNew = () => {
     setEditing(null);
-    setForm({ title: "", brand_id: "", description: "", year: "", image_url: "", gallery_urls: [] });
+    setForm({
+      title: "",
+      brand_id: "",
+      description: "",
+      year: "",
+      image_url: "",
+      gallery_urls: [],
+    });
     setOpen(true);
   };
 
@@ -80,17 +121,29 @@ const Projects = () => {
 
   const upload = async (file: File) => {
     if (file.size > 5 * 1024 * 1024) {
-      toast({ title: "File quá lớn", description: "Tối đa 5MB", variant: "destructive" });
+      toast({
+        title: "File quá lớn",
+        description: "Tối đa 5MB",
+        variant: "destructive",
+      });
       return;
     }
     setUploading(true);
     const ext = file.name.split(".").pop();
     const path = `projects/${crypto.randomUUID()}.${ext}`;
-    const { error } = await supabase.storage.from("project-images").upload(path, file);
+    const { error } = await supabase.storage
+      .from("project-images")
+      .upload(path, file);
     if (error) {
-      toast({ title: "Upload lỗi", description: error.message, variant: "destructive" });
+      toast({
+        title: "Upload lỗi",
+        description: error.message,
+        variant: "destructive",
+      });
     } else {
-      const { data } = supabase.storage.from("project-images").getPublicUrl(path);
+      const { data } = supabase.storage
+        .from("project-images")
+        .getPublicUrl(path);
       setForm((f) => ({ ...f, image_url: data.publicUrl }));
       toast({ title: "Upload thành công" });
     }
@@ -100,7 +153,11 @@ const Projects = () => {
   const uploadGallery = async (files: FileList) => {
     const validFiles = Array.from(files).filter((f) => {
       if (f.size > 5 * 1024 * 1024) {
-        toast({ title: `${f.name} quá lớn`, description: "Tối đa 5MB mỗi ảnh", variant: "destructive" });
+        toast({
+          title: `${f.name} quá lớn`,
+          description: "Tối đa 5MB mỗi ảnh",
+          variant: "destructive",
+        });
         return false;
       }
       return true;
@@ -111,11 +168,19 @@ const Projects = () => {
     for (const file of validFiles) {
       const ext = file.name.split(".").pop();
       const path = `projects/gallery/${crypto.randomUUID()}.${ext}`;
-      const { error } = await supabase.storage.from("project-images").upload(path, file);
+      const { error } = await supabase.storage
+        .from("project-images")
+        .upload(path, file);
       if (error) {
-        toast({ title: `Lỗi upload ${file.name}`, description: error.message, variant: "destructive" });
+        toast({
+          title: `Lỗi upload ${file.name}`,
+          description: error.message,
+          variant: "destructive",
+        });
       } else {
-        const { data } = supabase.storage.from("project-images").getPublicUrl(path);
+        const { data } = supabase.storage
+          .from("project-images")
+          .getPublicUrl(path);
         newUrls.push(data.publicUrl);
       }
     }
@@ -127,13 +192,20 @@ const Projects = () => {
   };
 
   const removeGalleryImage = (idx: number) => {
-    setForm((f) => ({ ...f, gallery_urls: f.gallery_urls.filter((_, i) => i !== idx) }));
+    setForm((f) => ({
+      ...f,
+      gallery_urls: f.gallery_urls.filter((_, i) => i !== idx),
+    }));
   };
 
   const save = async () => {
     const parsed = schema.safeParse(form);
     if (!parsed.success) {
-      toast({ title: "Dữ liệu lỗi", description: parsed.error.issues[0].message, variant: "destructive" });
+      toast({
+        title: "Dữ liệu lỗi",
+        description: parsed.error.issues[0].message,
+        variant: "destructive",
+      });
       return;
     }
     setSaving(true);
@@ -143,15 +215,20 @@ const Projects = () => {
       description: parsed.data.description || null,
       year: parsed.data.year || null,
       image_url: parsed.data.image_url || null,
-      gallery_urls: (form.gallery_urls.length > 0 ? form.gallery_urls : null) as unknown as null,
+      gallery_urls: (form.gallery_urls.length > 0
+        ? form.gallery_urls
+        : null) as unknown as null,
     };
     const { error } = editing
       ? await supabase.from("projects").update(payload).eq("id", editing.id)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      : await supabase.from("projects").insert({ ...payload, slug: null } as any);
+      : await supabase.from("projects").insert(payload);
     setSaving(false);
     if (error) {
-      toast({ title: "Lỗi lưu", description: error.message, variant: "destructive" });
+      toast({
+        title: "Lỗi lưu",
+        description: error.message,
+        variant: "destructive",
+      });
       return;
     }
     toast({ title: editing ? "Đã cập nhật" : "Đã thêm dự án" });
@@ -162,7 +239,12 @@ const Projects = () => {
   const remove = async (id: string) => {
     if (!confirm("Xoá dự án này?")) return;
     const { error } = await supabase.from("projects").delete().eq("id", id);
-    if (error) return toast({ title: "Lỗi xoá", description: error.message, variant: "destructive" });
+    if (error)
+      return toast({
+        title: "Lỗi xoá",
+        description: error.message,
+        variant: "destructive",
+      });
     toast({ title: "Đã xoá" });
     load();
   };
@@ -174,12 +256,16 @@ const Projects = () => {
           <h1 className="font-display text-3xl mb-2">Dự án</h1>
           <p className="text-foreground/60 text-sm">{items.length} projects</p>
         </div>
-        <Button onClick={openNew}><Plus className="w-4 h-4" /> Thêm Dự án</Button>
+        <Button onClick={openNew}>
+          <Plus className="w-4 h-4" /> Thêm Dự án
+        </Button>
       </div>
 
       <Card>
         {loading ? (
-          <div className="p-12 text-center"><Loader2 className="w-6 h-6 animate-spin mx-auto text-primary" /></div>
+          <div className="p-12 text-center">
+            <Loader2 className="w-6 h-6 animate-spin mx-auto text-primary" />
+          </div>
         ) : (
           <Table>
             <TableHeader>
@@ -196,21 +282,41 @@ const Projects = () => {
                 <TableRow key={p.id}>
                   <TableCell>
                     {p.image_url ? (
-                      <img src={p.image_url} alt={p.title} className="w-16 h-12 object-cover rounded" />
+                      <img
+                        src={p.image_url}
+                        alt={p.title}
+                        className="w-16 h-12 object-cover rounded"
+                      />
                     ) : (
                       <div className="w-16 h-12 bg-muted rounded" />
                     )}
                   </TableCell>
                   <TableCell className="font-medium max-w-md">
                     <div className="line-clamp-1">{p.title}</div>
-                    <div className="text-xs text-foreground/60 line-clamp-1">{p.description}</div>
+                    <div className="text-xs text-foreground/60 line-clamp-1">
+                      {p.description}
+                    </div>
                   </TableCell>
-                  <TableCell className="text-sm">{p.brands?.name ?? "—"}</TableCell>
+                  <TableCell className="text-sm">
+                    {p.brands?.name ?? "—"}
+                  </TableCell>
                   <TableCell className="text-sm">{p.year ?? "—"}</TableCell>
                   <TableCell>
                     <div className="flex gap-1">
-                      <Button variant="ghost" size="icon" onClick={() => openEdit(p)}><Pencil className="w-4 h-4" /></Button>
-                      <Button variant="ghost" size="icon" onClick={() => remove(p.id)}><Trash2 className="w-4 h-4 text-destructive" /></Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => openEdit(p)}
+                      >
+                        <Pencil className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => remove(p.id)}
+                      >
+                        <Trash2 className="w-4 h-4 text-destructive" />
+                      </Button>
                     </div>
                   </TableCell>
                 </TableRow>
@@ -223,38 +329,68 @@ const Projects = () => {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>{editing ? "Sửa dự án" : "Thêm dự án mới"}</DialogTitle>
+            <DialogTitle>
+              {editing ? "Sửa dự án" : "Thêm dự án mới"}
+            </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 max-h-[70vh] overflow-y-auto">
             <div>
               <Label>Tiêu đề *</Label>
-              <Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} maxLength={200} />
+              <Input
+                value={form.title}
+                onChange={(e) => setForm({ ...form, title: e.target.value })}
+                maxLength={200}
+              />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label>Brand</Label>
-                <Select value={form.brand_id} onValueChange={(v) => setForm({ ...form, brand_id: v })}>
-                  <SelectTrigger><SelectValue placeholder="Chọn brand" /></SelectTrigger>
+                <Select
+                  value={form.brand_id}
+                  onValueChange={(v) => setForm({ ...form, brand_id: v })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Chọn brand" />
+                  </SelectTrigger>
                   <SelectContent>
-                    {brands.map((b) => <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>)}
+                    {brands.map((b) => (
+                      <SelectItem key={b.id} value={b.id}>
+                        {b.name}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
               <div>
                 <Label>Năm</Label>
-                <Input value={form.year} onChange={(e) => setForm({ ...form, year: e.target.value })} placeholder="2024" />
+                <Input
+                  value={form.year}
+                  onChange={(e) => setForm({ ...form, year: e.target.value })}
+                  placeholder="2024"
+                />
               </div>
             </div>
             <div>
               <Label>Mô tả</Label>
-              <Textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={4} maxLength={2000} />
+              <Textarea
+                value={form.description}
+                onChange={(e) =>
+                  setForm({ ...form, description: e.target.value })
+                }
+                rows={4}
+                maxLength={2000}
+              />
             </div>
             <div>
               <Label>Ảnh bìa (max 5MB)</Label>
               <div className="flex items-center gap-3 mt-2">
                 {form.image_url && (
                   <div className="relative group">
-                    <img src={form.image_url} alt="" className="w-24 h-16 object-cover rounded" />
+                    <img
+                      src={form.image_url}
+                      alt=""
+                      className="w-24 h-16 object-cover rounded"
+                    />
                     <button
                       type="button"
                       onClick={() => setForm((f) => ({ ...f, image_url: "" }))}
@@ -265,10 +401,27 @@ const Projects = () => {
                   </div>
                 )}
                 <label className="cursor-pointer">
-                  <input type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])} />
-                  <Button type="button" variant="outline" size="sm" disabled={uploading} asChild>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) =>
+                      e.target.files?.[0] && upload(e.target.files[0])
+                    }
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    disabled={uploading}
+                    asChild
+                  >
                     <span>
-                      {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                      {uploading ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <Upload className="w-4 h-4" />
+                      )}
                       {uploading ? "Đang tải..." : "Chọn ảnh bìa"}
                     </span>
                   </Button>
@@ -281,13 +434,19 @@ const Projects = () => {
                 <Images className="w-4 h-4" />
                 Thư viện ảnh ({form.gallery_urls.length} ảnh)
               </Label>
-              <p className="text-xs text-foreground/50 mt-0.5 mb-2">Chọn nhiều ảnh cùng lúc, mỗi ảnh tối đa 5MB</p>
+              <p className="text-xs text-foreground/50 mt-0.5 mb-2">
+                Chọn nhiều ảnh cùng lúc, mỗi ảnh tối đa 5MB
+              </p>
 
               {form.gallery_urls.length > 0 && (
                 <div className="grid grid-cols-4 gap-2 mb-3">
                   {form.gallery_urls.map((url, idx) => (
                     <div key={idx} className="relative group aspect-video">
-                      <img src={url} alt={`gallery-${idx}`} className="w-full h-full object-cover rounded border" />
+                      <img
+                        src={url}
+                        alt={`gallery-${idx}`}
+                        className="w-full h-full object-cover rounded border"
+                      />
                       <button
                         type="button"
                         onClick={() => removeGalleryImage(idx)}
@@ -306,11 +465,25 @@ const Projects = () => {
                   accept="image/*"
                   multiple
                   className="hidden"
-                  onChange={(e) => e.target.files && e.target.files.length > 0 && uploadGallery(e.target.files)}
+                  onChange={(e) =>
+                    e.target.files &&
+                    e.target.files.length > 0 &&
+                    uploadGallery(e.target.files)
+                  }
                 />
-                <Button type="button" variant="outline" size="sm" disabled={uploadingGallery} asChild>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={uploadingGallery}
+                  asChild
+                >
                   <span>
-                    {uploadingGallery ? <Loader2 className="w-4 h-4 animate-spin" /> : <Images className="w-4 h-4" />}
+                    {uploadingGallery ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Images className="w-4 h-4" />
+                    )}
                     {uploadingGallery ? "Đang tải..." : "Thêm ảnh vào thư viện"}
                   </span>
                 </Button>
@@ -318,8 +491,12 @@ const Projects = () => {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="ghost" onClick={() => setOpen(false)}>Huỷ</Button>
-            <Button onClick={save} disabled={saving}>{saving ? <Loader2 className="w-4 h-4 animate-spin" /> : "Lưu"}</Button>
+            <Button variant="ghost" onClick={() => setOpen(false)}>
+              Huỷ
+            </Button>
+            <Button onClick={save} disabled={saving}>
+              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : "Lưu"}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
