@@ -22,7 +22,10 @@ const Projects = () => {
       <main>
         {/* Hero */}
         <section className="relative overflow-hidden border-b border-border/60">
-          <div className="absolute inset-0 bg-[var(--gradient-hero)] opacity-80" aria-hidden />
+          <div
+            className="absolute inset-0 bg-[var(--gradient-hero)] opacity-80"
+            aria-hidden
+          />
           <div className="container relative py-20 md:py-28">
             <Link
               to="/"
@@ -40,10 +43,14 @@ const Projects = () => {
               </h1>
               <p
                 className="text-base md:text-lg text-foreground/70 max-w-2xl animate-fade-in"
-                style={{ animationDelay: "150ms", animationFillMode: "backwards" }}
+                style={{
+                  animationDelay: "150ms",
+                  animationFillMode: "backwards",
+                }}
               >
-                Hơn 200+ chiến dịch đã triển khai cho các thương hiệu trong và ngoài nước —
-                từ beauty, công nghệ đến F&B, thời trang và giáo dục.
+                Hơn 200+ chiến dịch đã triển khai cho các thương hiệu trong và
+                ngoài nước — từ beauty, công nghệ đến F&B, thời trang và giáo
+                dục.
               </p>
             </div>
           </div>
@@ -60,7 +67,9 @@ const Projects = () => {
               Không tải được danh sách dự án. Vui lòng thử lại sau.
             </p>
           ) : projects.length === 0 ? (
-            <p className="text-center text-foreground/60 py-16">Chưa có dự án nào.</p>
+            <p className="text-center text-foreground/60 py-16">
+              Chưa có dự án nào.
+            </p>
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5">
               {projects.map((p, i) => (
@@ -68,7 +77,10 @@ const Projects = () => {
                   to={`/du-an/${p.id}`}
                   key={p.id}
                   className="group flex flex-col animate-fade-in rounded-xl overflow-hidden shadow-card hover:shadow-pop transition-all duration-500 hover:-translate-y-1"
-                  style={{ animationDelay: `${i * 60}ms`, animationFillMode: "backwards" }}
+                  style={{
+                    animationDelay: `${i * 60}ms`,
+                    animationFillMode: "backwards",
+                  }}
                 >
                   {/* Image */}
                   <div className="relative aspect-[3/4] overflow-hidden bg-muted">
@@ -94,7 +106,7 @@ const Projects = () => {
                   {/* Bottom bar */}
                   <div className="bg-gold flex items-center justify-center gap-1.5 px-3 py-5">
                     <h3 className="font-[Cormorant_Garamond] text-xl md:text-2xl leading-snug text-white text-center tracking-wide">
-                     Dự án {p.title}
+                      {p.title}
                     </h3>
                     <ArrowRight className="w-3.5 h-3.5 text-white/70 shrink-0 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
                   </div>
@@ -114,7 +126,8 @@ const Projects = () => {
               </span>
             </h2>
             <p className="text-foreground/70 mb-8 max-w-xl mx-auto">
-              Hãy để TIKA Network đồng hành cùng thương hiệu của bạn trong chiến dịch sắp tới.
+              Hãy để TIKA Network đồng hành cùng thương hiệu của bạn trong chiến
+              dịch sắp tới.
             </p>
             <Button variant="hero" size="lg" asChild>
               <Link to="/#contact">
