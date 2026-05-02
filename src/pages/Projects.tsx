@@ -94,7 +94,7 @@ const Projects = () => {
                   {/* Bottom bar */}
                   <div className="bg-gold flex items-center justify-center gap-1.5 px-3 py-5">
                     <h3 className="font-[Cormorant_Garamond] text-xl md:text-2xl leading-snug text-white text-center tracking-wide">
-                      {p.title}
+                     Dự án {p.title}
                     </h3>
                     <ArrowRight className="w-3.5 h-3.5 text-white/70 shrink-0 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
                   </div>
