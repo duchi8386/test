@@ -92,7 +92,7 @@ const Projects = () => {
                   </div>
 
                   {/* Bottom bar */}
-                  <div className="bg-gold flex items-center justify-center gap-1.5 px-3 py-3">
+                  <div className="bg-gold flex items-center justify-center gap-1.5 px-3 py-5">
                     <h3 className="font-[Cormorant_Garamond] text-xl md:text-2xl leading-snug text-white text-center tracking-wide">
                       {p.title}
                     </h3>
