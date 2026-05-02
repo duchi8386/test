@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { uploadToCloudinary } from "@/lib/cloudinary";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -84,7 +85,7 @@ const Projects = () => {
         .order("created_at", { ascending: false }),
       supabase.from("brands").select("id, name").order("name"),
     ]);
-    setItems((pRes.data as any) ?? []);
+    setItems((pRes.data as Project[]) ?? []);
     setBrands(bRes.data ?? []);
     setLoading(false);
   };
@@ -120,68 +121,36 @@ const Projects = () => {
   };
 
   const upload = async (file: File) => {
-    if (file.size > 5 * 1024 * 1024) {
-      toast({
-        title: "File quá lớn",
-        description: "Tối đa 5MB",
-        variant: "destructive",
-      });
-      return;
-    }
     setUploading(true);
-    const ext = file.name.split(".").pop();
-    const path = `projects/${crypto.randomUUID()}.${ext}`;
-    const { error } = await supabase.storage
-      .from("project-images")
-      .upload(path, file);
-    if (error) {
+    try {
+      const url = await uploadToCloudinary(file, "image", "tika/projects");
+      setForm((f) => ({ ...f, image_url: url }));
+      toast({ title: "Upload thành công" });
+    } catch (err) {
       toast({
         title: "Upload lỗi",
-        description: error.message,
+        description: String(err),
         variant: "destructive",
       });
-    } else {
-      const { data } = supabase.storage
-        .from("project-images")
-        .getPublicUrl(path);
-      setForm((f) => ({ ...f, image_url: data.publicUrl }));
-      toast({ title: "Upload thành công" });
+    } finally {
+      setUploading(false);
     }
-    setUploading(false);
   };
 
   const uploadGallery = async (files: FileList) => {
-    const validFiles = Array.from(files).filter((f) => {
-      if (f.size > 5 * 1024 * 1024) {
-        toast({
-          title: `${f.name} quá lớn`,
-          description: "Tối đa 5MB mỗi ảnh",
-          variant: "destructive",
-        });
-        return false;
-      }
-      return true;
-    });
-    if (!validFiles.length) return;
+    if (!files.length) return;
     setUploadingGallery(true);
     const newUrls: string[] = [];
-    for (const file of validFiles) {
-      const ext = file.name.split(".").pop();
-      const path = `projects/gallery/${crypto.randomUUID()}.${ext}`;
-      const { error } = await supabase.storage
-        .from("project-images")
-        .upload(path, file);
-      if (error) {
+    for (const file of Array.from(files)) {
+      try {
+        const url = await uploadToCloudinary(file, "image", "tika/projects/gallery");
+        newUrls.push(url);
+      } catch (err) {
         toast({
           title: `Lỗi upload ${file.name}`,
-          description: error.message,
+          description: String(err),
           variant: "destructive",
         });
-      } else {
-        const { data } = supabase.storage
-          .from("project-images")
-          .getPublicUrl(path);
-        newUrls.push(data.publicUrl);
       }
     }
     if (newUrls.length > 0) {
@@ -382,7 +351,7 @@ const Projects = () => {
               />
             </div>
             <div>
-              <Label>Ảnh bìa (max 5MB)</Label>
+              <Label>Ảnh bìa</Label>
               <div className="flex items-center gap-3 mt-2">
                 {form.image_url && (
                   <div className="relative group">
@@ -435,7 +404,7 @@ const Projects = () => {
                 Thư viện ảnh ({form.gallery_urls.length} ảnh)
               </Label>
               <p className="text-xs text-foreground/50 mt-0.5 mb-2">
-                Chọn nhiều ảnh cùng lúc, mỗi ảnh tối đa 5MB
+                Chọn nhiều ảnh cùng lúc, lưu trữ trên Cloudinary
               </p>
 
               {form.gallery_urls.length > 0 && (

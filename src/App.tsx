@@ -13,6 +13,7 @@ import AdminLeads from "./pages/admin/Leads.tsx";
 import AdminProjects from "./pages/admin/Projects.tsx";
 import AdminServices from "./pages/admin/Services.tsx";
 import AdminBrands from "./pages/admin/Brands.tsx";
+import AdminMediaMigration from "./pages/admin/MediaMigration.tsx";
 import ProtectedRoute from "./components/admin/ProtectedRoute.tsx";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ThemeProvider } from "@/hooks/use-theme";
@@ -37,6 +38,7 @@ const App = () => (
               <Route path="/admin/projects" element={<ProtectedRoute><AdminProjects /></ProtectedRoute>} />
               <Route path="/admin/services" element={<ProtectedRoute><AdminServices /></ProtectedRoute>} />
               <Route path="/admin/brands" element={<ProtectedRoute><AdminBrands /></ProtectedRoute>} />
+              <Route path="/admin/media-migration" element={<ProtectedRoute><AdminMediaMigration /></ProtectedRoute>} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

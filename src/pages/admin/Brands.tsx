@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { uploadToCloudinary } from "@/lib/cloudinary";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -55,22 +56,16 @@ const Brands = () => {
   };
 
   const upload = async (file: File) => {
-    if (file.size > 5 * 1024 * 1024) {
-      toast({ title: "File quá lớn", description: "Tối đa 5MB", variant: "destructive" });
-      return;
-    }
     setUploading(true);
-    const ext = file.name.split(".").pop();
-    const path = `brands/${crypto.randomUUID()}.${ext}`;
-    const { error } = await supabase.storage.from("project-images").upload(path, file);
-    if (error) {
-      toast({ title: "Upload lỗi", description: error.message, variant: "destructive" });
-    } else {
-      const { data } = supabase.storage.from("project-images").getPublicUrl(path);
-      setForm((f) => ({ ...f, logo_url: data.publicUrl }));
+    try {
+      const url = await uploadToCloudinary(file, "image", "tika/brands");
+      setForm((f) => ({ ...f, logo_url: url }));
       toast({ title: "Upload thành công" });
+    } catch (err) {
+      toast({ title: "Upload lỗi", description: String(err), variant: "destructive" });
+    } finally {
+      setUploading(false);
     }
-    setUploading(false);
   };
 
   const save = async () => {
@@ -172,7 +167,7 @@ const Brands = () => {
               <Input value={form.website_url} onChange={(e) => setForm({ ...form, website_url: e.target.value })} placeholder="https://..." />
             </div>
             <div>
-              <Label>Logo (max 5MB)</Label>
+              <Label>Logo</Label>
               <div className="flex items-center gap-3 mt-2">
                 {form.logo_url && <img src={form.logo_url} alt="" className="w-16 h-16 object-contain bg-muted/30 rounded" />}
                 <label className="cursor-pointer">

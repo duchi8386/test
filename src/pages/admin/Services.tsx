@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { uploadToCloudinary } from "@/lib/cloudinary";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -142,32 +143,19 @@ function MediaManagerDialog({
     setUploading(true);
     try {
       let blob: Blob = file;
-      let ext = file.name.split(".").pop() ?? "jpg";
-      let mimeType = file.type;
 
       if (type === "image") {
         toast({ title: "Đang resize ảnh về 9:16…" });
         blob = await resizeImageTo916(file);
-        ext = "jpg";
-        mimeType = "image/jpeg";
       }
 
-      const path = `services/${crypto.randomUUID()}.${ext}`;
-      const { error: uploadError } = await supabase.storage
-        .from("service-media")
-        .upload(path, blob, { contentType: mimeType });
-
-      if (uploadError) {
-        toast({ title: "Lỗi upload", description: uploadError.message, variant: "destructive" });
-        return;
-      }
-
-      const { data: urlData } = supabase.storage.from("service-media").getPublicUrl(path);
+      const cloudinaryType = type === "video" ? "video" : "image";
+      const url = await uploadToCloudinary(blob, cloudinaryType, "tika/services");
 
       const { error: insertError } = await supabase.from("service_media").insert({
         service_id: service.id,
         type,
-        url: urlData.publicUrl,
+        url,
         label: labelInput.trim() || null,
         handle: handleInput.trim() || null,
         sort_order: items.length,

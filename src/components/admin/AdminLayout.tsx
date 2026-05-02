@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import { LayoutDashboard, Users, FolderKanban, Wrench, Building2, LogOut, ExternalLink } from "lucide-react";
+import { LayoutDashboard, Users, FolderKanban, Wrench, Building2, LogOut, ExternalLink, CloudUpload } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -11,6 +11,7 @@ const nav = [
   { to: "/admin/projects", label: "Projects", icon: FolderKanban },
   { to: "/admin/services", label: "Services", icon: Wrench },
   { to: "/admin/brands", label: "Brands", icon: Building2 },
+  { to: "/admin/media-migration", label: "Media Migration", icon: CloudUpload },
 ];
 
 const AdminLayout = ({ children }: { children: ReactNode }) => {
