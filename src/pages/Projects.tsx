@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft, ArrowRight, ExternalLink, Loader2 } from "lucide-react";
+
 import Navbar from "@/components/landing/Navbar";
 import Footer from "@/components/landing/Footer";
 import FloatingActions from "@/components/landing/FloatingActions";
@@ -61,15 +62,16 @@ const Projects = () => {
           ) : projects.length === 0 ? (
             <p className="text-center text-foreground/60 py-16">Chưa có dự án nào.</p>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5">
               {projects.map((p, i) => (
                 <Link
                   to={`/du-an/${p.id}`}
                   key={p.id}
-                  className="group relative flex flex-col animate-fade-in"
-                  style={{ animationDelay: `${i * 80}ms` }}
+                  className="group flex flex-col animate-fade-in rounded-xl overflow-hidden shadow-card hover:shadow-pop transition-all duration-500 hover:-translate-y-1"
+                  style={{ animationDelay: `${i * 60}ms`, animationFillMode: "backwards" }}
                 >
-                  <div className="relative aspect-[4/5] overflow-hidden bg-muted mb-6">
+                  {/* Image */}
+                  <div className="relative aspect-[3/4] overflow-hidden bg-muted">
                     {p.image_url ? (
                       <img
                         src={p.image_url}
@@ -78,35 +80,23 @@ const Projects = () => {
                         className="w-full h-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.06]"
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center text-foreground/30 text-sm">
+                      <div className="w-full h-full flex items-center justify-center text-foreground/30 text-xs">
                         Chưa có ảnh
                       </div>
                     )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-background/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                     {p.year && (
-                      <div className="absolute top-5 right-5 text-[11px] uppercase tracking-[0.3em] text-foreground/80 bg-background/85 backdrop-blur-sm px-2.5 py-1">
+                      <div className="absolute top-3 right-3 text-[9px] uppercase tracking-[0.2em] text-primary-foreground bg-primary/80 backdrop-blur-sm px-2 py-0.5 rounded-sm">
                         {p.year}
                       </div>
                     )}
-                    <div className="absolute bottom-0 left-0 right-0 p-5 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
-                      <span className="inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.3em] text-primary bg-background/90 backdrop-blur-sm px-3 py-2">
-                        Xem chi tiết
-                        <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
-                      </span>
-                    </div>
                   </div>
 
-                  <div className="flex flex-col">
-                    <div className="text-[11px] uppercase tracking-[0.3em] text-primary mb-3">
-                      {p.brands?.name ?? "Dự án"}
-                    </div>
-                    <h3 className="font-[Cormorant_Garamond] text-3xl md:text-[2rem] leading-[1.15] mb-3 group-hover:text-primary transition-colors duration-300">
+                  {/* Bottom bar */}
+                  <div className="bg-gold flex items-center justify-center gap-1.5 px-3 py-3">
+                    <h3 className="font-[Cormorant_Garamond] text-xl md:text-2xl leading-snug text-white text-center tracking-wide">
                       {p.title}
                     </h3>
-                    <div className="w-10 h-px bg-primary/40 mb-4 transition-all duration-500 group-hover:w-20 group-hover:bg-primary" />
-                    <p className="text-sm md:text-[15px] text-foreground/65 leading-relaxed">
-                      {p.description ?? ""}
-                    </p>
+                    <ArrowRight className="w-3.5 h-3.5 text-white/70 shrink-0 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
                   </div>
                 </Link>
               ))}
