@@ -34,12 +34,27 @@ const CTA = () => {
             </Reveal>
             <Reveal delay={280} className="flex flex-wrap gap-4 justify-center">
               <Button variant="hero" size="xl" asChild>
-                <a href="#contact">Bắt đầu miễn phí <ArrowRight className="w-4 h-4" /></a>
+                <a href="#contact" className="relative overflow-hidden group/btn">
+                  {/* Shimmer sweep — quét mỗi 3s */}
+                  <span
+                    aria-hidden
+                    className="absolute inset-0 -translate-x-full skew-x-[-20deg] bg-white/20 group-hover/btn:translate-x-[200%] transition-transform duration-700 ease-in-out pointer-events-none"
+                    style={{ animation: "shimmer-sweep 3s ease-in-out infinite" }}
+                  />
+                  Bắt đầu miễn phí <ArrowRight className="w-4 h-4" />
+                </a>
               </Button>
               <Button variant="soft" size="xl" asChild>
                 <a href="#contact">Đặt lịch demo</a>
               </Button>
             </Reveal>
+            <style>{`
+              @keyframes shimmer-sweep {
+                0%   { transform: translateX(-110%) skewX(-20deg); }
+                40%  { transform: translateX(210%)  skewX(-20deg); }
+                100% { transform: translateX(210%)  skewX(-20deg); }
+              }
+            `}</style>
           </div>
         </div>
       </div>

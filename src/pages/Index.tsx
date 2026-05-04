@@ -1,12 +1,15 @@
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import Navbar from "@/components/landing/Navbar";
+import ScrollProgress from "@/components/landing/ScrollProgress";
 import Hero from "@/components/landing/Hero";
 import LogoMarquee from "@/components/landing/LogoMarquee";
 import Services from "@/components/landing/Services";
 import Stats from "@/components/landing/Stats";
 import DeploymentMethods from "@/components/landing/DeploymentMethods";
 import HowItWorks from "@/components/landing/HowItWorks";
+import Platforms from "@/components/landing/Platforms";
+import Analytics from "@/components/landing/Analytics";
 import CTA from "@/components/landing/CTA";
 import ContactForm from "@/components/landing/ContactForm";
 import Footer from "@/components/landing/Footer";
@@ -30,6 +33,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <ScrollProgress />
       <Navbar />
       <main>
         <Hero />
@@ -38,6 +42,8 @@ const Index = () => {
         <DeploymentMethods />
         <Services />
         <HowItWorks />
+        <Platforms />
+        <Analytics />
         <ContactForm />
       </main>
       <Footer />

@@ -1,38 +1,110 @@
 import { useEffect, useRef, useState } from "react";
+import {
+  ClipboardList,
+  Lightbulb,
+  Banknote,
+  FileSignature,
+  Rocket,
+  BarChart2,
+} from "lucide-react";
 
-// Danh sách 6 bước trong quy trình vận hành của TIKA
-const steps = [
-  { n: "01", title: "Tiếp nhận & Khai phá", subtitle: "(Briefing)", desc: "Thấu hiểu mục tiêu, nghiên cứu ngành hàng và chân dung khách hàng mục tiêu." },
-  { n: "02", title: "Chiến lược & Giải pháp", subtitle: "(Strategic Proposal)", desc: "Định hình concept sáng tạo, xác lập KPI và tối ưu hóa ngân sách." },
-  { n: "03", title: "Giải pháp Nhân sự & Báo giá", subtitle: "(Talent Selection)", desc: "Đề xuất danh sách KOL/KOC dựa trên dữ liệu thực tế và minh bạch chi phí." },
-  { n: "04", title: "Cam kết Hợp tác", subtitle: "(Contracting)", desc: "Hoàn thiện pháp lý, xác nhận lịch trình và các điều khoản triển khai." },
-  { n: "05", title: "Vận hành & Giám sát", subtitle: "(Execution)", desc: "Quản trị nội dung chặt chẽ, đảm bảo tiến độ và bám sát thực tế." },
-  { n: "06", title: "Đo lường & Tối ưu", subtitle: "(Reporting)", desc: "Phân tích hiệu chỉ số và tối ưu campaign tiếp theo." },
+const STEPS = [
+  {
+    n: "01",
+    title: "Tiếp nhận & Phân tích",
+    desc: "Mục tiêu · ngành hàng · tệp khách hàng · nền tảng · timeline · ngân sách",
+    Icon: ClipboardList,
+    dark: true,
+  },
+  {
+    n: "02",
+    title: "Chiến lược & Đề xuất",
+    desc: "Chốt KPI · xây concept · phân bổ ngân sách hợp lý",
+    Icon: Lightbulb,
+    dark: false,
+  },
+  {
+    n: "03",
+    title: "Lựa chọn & Báo giá",
+    desc: "Đề xuất KOL / Micro / Reviewer theo data · báo giá chi tiết, minh bạch",
+    Icon: Banknote,
+    dark: true,
+  },
+  {
+    n: "04",
+    title: "Ký kết & Xác nhận",
+    desc: "Ký hợp đồng · booking chính thức · xác nhận lịch triển khai",
+    Icon: FileSignature,
+    dark: false,
+  },
+  {
+    n: "05",
+    title: "Triển khai & Giám sát",
+    desc: "Brief KOL · duyệt nội dung · bám sát timeline · monitor hiệu suất",
+    Icon: Rocket,
+    dark: true,
+  },
+  {
+    n: "06",
+    title: "Báo cáo & Tối ưu",
+    desc: "Reach · Engagement · Conversion · insight tối ưu cho campaign tiếp theo",
+    Icon: BarChart2,
+    dark: false,
+  },
 ];
 
-const HowItWorks = () => {
-  // Theo dõi các bước đã xuất hiện trong viewport để chạy hiệu ứng fade-in tuần tự
-  const [visible, setVisible] = useState<Set<number>>(new Set());
-  const refs = useRef<(HTMLDivElement | null)[]>([]);
+// Easing presets
+const EASE_SPRING = "cubic-bezier(0.34, 1.56, 0.64, 1)";
+const EASE_SMOOTH = "cubic-bezier(0.22, 1, 0.36, 1)";
 
+const HowItWorks = () => {
+  const [headerVisible, setHeaderVisible] = useState(false);
+  const [lineVisible, setLineVisible]     = useState(false);
+  const [visible, setVisible]             = useState<Set<number>>(new Set());
+
+  const headerRef    = useRef<HTMLDivElement>(null);
+  const timelineRef  = useRef<HTMLDivElement>(null);
+  const stepRefs     = useRef<(HTMLDivElement | null)[]>([]);
+
+  // Header fade-up
   useEffect(() => {
-    // Sử dụng IntersectionObserver để kích hoạt animation khi cuộn tới
+    if (!headerRef.current) return;
+    const io = new IntersectionObserver(
+      ([e]) => { if (e.isIntersecting) { setHeaderVisible(true); io.disconnect(); } },
+      { threshold: 0.4 }
+    );
+    io.observe(headerRef.current);
+    return () => io.disconnect();
+  }, []);
+
+  // Spine line draw
+  useEffect(() => {
+    if (!timelineRef.current) return;
+    const io = new IntersectionObserver(
+      ([e]) => { if (e.isIntersecting) { setLineVisible(true); io.disconnect(); } },
+      { threshold: 0.05 }
+    );
+    io.observe(timelineRef.current);
+    return () => io.disconnect();
+  }, []);
+
+  // Step rows — stagger as each enters viewport
+  useEffect(() => {
     const observers: IntersectionObserver[] = [];
-    refs.current.forEach((el, idx) => {
+    stepRefs.current.forEach((el, idx) => {
       if (!el) return;
       const io = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              // Delay theo thứ tự để tạo hiệu ứng "stagger"
-              setTimeout(() => {
-                setVisible((prev) => new Set(prev).add(idx));
-              }, idx * 120);
-              io.disconnect();
-            }
-          });
+        ([e]) => {
+          if (e.isIntersecting) {
+            // Small extra delay so spine draws slightly ahead of cards
+            setTimeout(
+              () => setVisible((prev) => new Set(prev).add(idx)),
+              idx * 120 + 200
+            );
+            io.disconnect();
+          }
         },
-        { threshold: 0.25 }
+        { threshold: 0.15 }
       );
       io.observe(el);
       observers.push(io);
@@ -43,81 +115,140 @@ const HowItWorks = () => {
   return (
     <section
       id="how"
-      className="py-24 md:py-32 bg-card border-y border-border/60 relative overflow-hidden"
+      className="py-20 md:py-28 bg-background border-y border-border/60 overflow-hidden"
     >
-      {/* Hiệu ứng nền: vầng sáng vàng mờ chuyển động chậm */}
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -left-40 w-[500px] h-[500px] rounded-full bg-primary/10 blur-3xl animate-pulse-glow" />
-        <div className="absolute -bottom-40 -right-40 w-[500px] h-[500px] rounded-full bg-primary/10 blur-3xl animate-pulse-glow" style={{ animationDelay: "2s" }} />
-      </div>
+      <div className="container">
 
-      <div className="container relative">
-        {/* Tiêu đề section */}
-        <div className="text-center max-w-2xl mx-auto mb-20">
-          <span className="inline-block text-sm md:text-base font-medium uppercase tracking-[0.3em] text-primary mb-5">
-            — Quy trình vận hành —
+        {/* ── Header ── */}
+        <div
+          ref={headerRef}
+          className="text-center mb-14"
+          style={{
+            opacity:   headerVisible ? 1 : 0,
+            transform: headerVisible ? "translateY(0)" : "translateY(28px)",
+            transition: `opacity 0.8s ${EASE_SMOOTH}, transform 0.8s ${EASE_SMOOTH}`,
+          }}
+        >
+          <span className="inline-block text-xs font-semibold uppercase tracking-[0.3em] text-primary mb-4">
+            Quy trình vận hành
           </span>
-          <h2 className="font-display font-medium text-3xl md:text-5xl leading-[1.15]">
-            06 bước để biến ý tưởng<br />
-            thành <span className="text-gold italic">chiến dịch hiệu quả.</span>
+          <h2 className="font-display font-semibold text-3xl md:text-4xl lg:text-5xl leading-tight text-foreground">
+            06 bước để biến ý tưởng{" "}
+            <span className="italic text-primary">thành chiến dịch hiệu quả</span>
           </h2>
-          <div className="gold-divider w-24 mx-auto mt-6" />
+          <div
+            className="h-px bg-primary/50 mx-auto mt-5 rounded-full"
+            style={{
+              width:      headerVisible ? "48px" : "0px",
+              transition: `width 0.9s ${EASE_SMOOTH} 0.3s`,
+            }}
+          />
         </div>
 
-        {/* Đường nối dọc/ngang chạy xuyên qua các bước (chỉ hiện trên desktop) */}
-        <div className="relative grid sm:grid-cols-2 lg:grid-cols-3 gap-y-16 gap-x-8 md:gap-x-12">
-          {/* Đường line ngang trang trí ở giữa các hàng - desktop */}
-          <div className="hidden lg:block absolute left-0 right-0 top-[60px] h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
-          <div className="hidden lg:block absolute left-0 right-0 top-[calc(50%+30px)] h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+        {/* ── Timeline ── */}
+        <div ref={timelineRef} className="relative max-w-[680px] mx-auto">
 
-          {steps.map((s, idx) => {
-            const isVisible = visible.has(idx);
-            return (
-              <div
-                key={s.n}
-                ref={(el) => (refs.current[idx] = el)}
-                className={`group relative text-center transition-all duration-700 ease-out ${
-                  isVisible
-                    ? "opacity-100 translate-y-0 blur-0"
-                    : "opacity-0 translate-y-10 blur-sm"
-                }`}
-              >
-                {/* Card chứa nội dung mỗi bước, có hiệu ứng hover tinh tế */}
-                <div className="relative px-4 py-6 rounded-xl transition-all duration-500 hover:bg-background/60 hover:shadow-gold-ring hover:-translate-y-2">
-                  {/* Vòng tròn xoay nhẹ phía sau số thứ tự khi hover */}
-                  <div className="relative w-20 h-20 mx-auto mb-6">
-                    <div className="absolute inset-0 rounded-full border border-primary/20 opacity-0 group-hover:opacity-100 group-hover:animate-spin-slow transition-opacity duration-500" />
-                    <div className="absolute inset-1 rounded-full border border-primary/10 opacity-0 group-hover:opacity-100 group-hover:animate-spin-reverse transition-opacity duration-500" />
+          {/* Spine — draws from top to bottom */}
+          <div
+            aria-hidden
+            className="absolute left-[23px] top-8 bottom-8 w-px origin-top"
+            style={{
+              background: "linear-gradient(to bottom, hsl(42 70% 45% / 0.2), hsl(42 70% 45% / 0.65) 50%, hsl(42 70% 45% / 0.2))",
+              transform:  lineVisible ? "scaleY(1)" : "scaleY(0)",
+              transition: `transform 1.6s ${EASE_SMOOTH}`,
+            }}
+          />
 
-                    {/* Khung số thứ tự */}
-                    <div className="relative w-16 h-16 mx-auto mt-2 border border-primary/40 bg-background flex items-center justify-center transition-all duration-500 group-hover:border-primary group-hover:shadow-soft group-hover:scale-110">
-                      <span className="font-display text-2xl text-gold">
-                        {s.n}
-                      </span>
-                      {/* Glow vàng mờ phía sau số khi hover */}
-                      <div className="absolute inset-0 bg-primary/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10" />
+          <div className="flex flex-col gap-[22px]">
+            {STEPS.map((step, i) => {
+              const isVisible = visible.has(i);
+              const delay     = `${i * 0.06}s`;
+
+              return (
+                <div
+                  key={step.n}
+                  ref={(el) => (stepRefs.current[i] = el)}
+                  className="flex items-center gap-4"
+                  style={{
+                    opacity:   isVisible ? 1 : 0,
+                    transform: isVisible ? "translateX(0)" : "translateX(36px)",
+                    transition: `opacity 0.55s ${EASE_SMOOTH} ${delay}, transform 0.65s ${EASE_SMOOTH} ${delay}`,
+                  }}
+                >
+                  {/* ── Dot ── */}
+                  <div className="w-12 flex-shrink-0 flex items-center justify-center relative">
+                    {/* One-time ping ring when step appears */}
+                    {isVisible && (
+                      <span
+                        className="absolute w-[18px] h-[18px] rounded-full border border-primary/50"
+                        style={{
+                          animation: `ping-once 0.7s ${EASE_SMOOTH} forwards`,
+                        }}
+                      />
+                    )}
+                    <div
+                      className="w-[18px] h-[18px] rounded-full border-2 border-primary/50 bg-background flex items-center justify-center z-10"
+                      style={{
+                        transform:  isVisible ? "scale(1)" : "scale(0)",
+                        transition: `transform 0.45s ${EASE_SPRING} ${delay}`,
+                      }}
+                    >
+                      <div className="w-2 h-2 rounded-full bg-primary" />
                     </div>
                   </div>
 
-                  <h3 className="font-display text-2xl mb-1 transition-colors duration-300 group-hover:text-gold">
-                    {s.title}
-                  </h3>
-                  <div className="font-display text-base text-foreground/50 italic mb-3 transition-colors duration-300 group-hover:text-gold/70">
-                    {s.subtitle}
+                  {/* ── Icon bubble — spring bounce ── */}
+                  <div
+                    className={`w-[60px] h-[60px] rounded-full flex-shrink-0 flex items-center justify-center shadow-md cursor-default ${
+                      step.dark ? "bg-primary-deep" : "bg-primary"
+                    }`}
+                    style={{
+                      transform:  isVisible ? "scale(1)" : "scale(0.25)",
+                      transition: `transform 0.55s ${EASE_SPRING} calc(${delay} + 0.08s)`,
+                    }}
+                  >
+                    <step.Icon className="w-[26px] h-[26px] text-white" strokeWidth={1.6} />
                   </div>
 
-                  {/* Đường vàng nhỏ xuất hiện khi hover */}
-                  <div className="h-px w-0 bg-gradient-to-r from-transparent via-primary to-transparent mx-auto mb-3 transition-all duration-500 group-hover:w-16" />
-
-                  <p className="text-foreground/60 text-sm leading-relaxed font-light max-w-[260px] mx-auto">
-                    {s.desc}
-                  </p>
+                  {/* ── Card ── */}
+                  <div
+                    className="
+                      group flex-1 bg-card rounded-2xl border border-border/60
+                      px-5 py-4 shadow-[0_2px_16px_-6px_rgba(0,0,0,0.08)]
+                      hover:border-primary/30
+                      hover:shadow-[0_6px_28px_-8px_hsl(42_70%_45%/0.18)]
+                      hover:-translate-y-0.5
+                      transition-[border-color,box-shadow,transform] duration-300 cursor-default
+                    "
+                  >
+                    <div className="flex items-baseline gap-2 mb-1">
+                      <span className="text-[10px] font-mono font-semibold text-primary/60 tracking-widest">
+                        {step.n}
+                      </span>
+                      <h3 className="font-display font-extrabold text-[13px] md:text-sm tracking-[0.12em] text-primary uppercase">
+                        {step.title}
+                      </h3>
+                    </div>
+                    <p className="text-[12px] md:text-[13px] text-muted-foreground leading-relaxed">
+                      {step.desc}
+                    </p>
+                    {/* Expand underline on hover */}
+                    <div className="mt-2.5 h-px w-0 group-hover:w-10 bg-primary/40 transition-all duration-500 ease-out rounded-full" />
+                  </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
       </div>
+
+      {/* Keyframe for one-time dot ping */}
+      <style>{`
+        @keyframes ping-once {
+          0%   { transform: scale(1);   opacity: 0.6; }
+          100% { transform: scale(2.4); opacity: 0;   }
+        }
+      `}</style>
     </section>
   );
 };

@@ -1,9 +1,35 @@
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Sparkles } from "lucide-react";
 import banner from "@/assets/tika-banner.png";
 import logo from "@/assets/tika-logo.png";
 
+const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
+
+function useCountUp(target: number, duration: number, delay = 0) {
+  const [count, setCount] = useState(0);
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      let startTs: number | null = null;
+      let raf: number;
+      const step = (ts: number) => {
+        if (!startTs) startTs = ts;
+        const progress = Math.min((ts - startTs) / duration, 1);
+        setCount(Math.round(easeOut(progress) * target));
+        if (progress < 1) raf = requestAnimationFrame(step);
+      };
+      raf = requestAnimationFrame(step);
+      return () => cancelAnimationFrame(raf);
+    }, delay);
+    return () => clearTimeout(timer);
+  }, [target, duration, delay]);
+  return count;
+}
+
 const Hero = () => {
+  const brand    = useCountUp(500,  1400, 600);
+  const campaign = useCountUp(2000, 1800, 800);
+
   return (
     <section className="relative overflow-hidden bg-hero">
       <div
@@ -43,12 +69,16 @@ const Hero = () => {
 
           <div className="flex items-center gap-8 pt-6">
             <div>
-              <div className="font-display text-3xl text-gold">500<span className="text-primary">+</span></div>
+              <div className="font-display text-3xl text-gold tabular-nums">
+                {brand}<span className="text-primary">+</span>
+              </div>
               <div className="text-[10px] uppercase tracking-[0.2em] text-foreground/50 mt-1">Nhãn hàng tin chọn</div>
             </div>
             <div className="w-px h-10 bg-border" />
             <div>
-              <div className="font-display text-3xl text-gold">2000<span className="text-primary">+</span></div>
+              <div className="font-display text-3xl text-gold tabular-nums">
+                {campaign}<span className="text-primary">+</span>
+              </div>
               <div className="text-[10px] uppercase tracking-[0.2em] text-foreground/50 mt-1">Chiến dịch triển khai</div>
             </div>
           </div>
