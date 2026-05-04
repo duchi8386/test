@@ -83,13 +83,13 @@ const Projects = () => {
                   }}
                 >
                   {/* Image */}
-                  <div className="relative aspect-[3/4] overflow-hidden bg-muted">
+                  <div className="relative aspect-[9/16] overflow-hidden bg-muted">
                     {p.image_url ? (
                       <img
                         src={p.image_url}
                         alt={`${p.title} — ${p.brands?.name ?? ""}`}
                         loading="lazy"
-                        className="w-full h-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.06]"
+                        className="w-full h-full object-contain transition-transform duration-[1200ms] ease-out group-hover:scale-[1.06]"
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-foreground/30 text-xs">
