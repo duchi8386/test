@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft, ArrowRight, ExternalLink, Loader2 } from "lucide-react";
 
@@ -7,9 +7,46 @@ import Footer from "@/components/landing/Footer";
 import FloatingActions from "@/components/landing/FloatingActions";
 import { Button } from "@/components/ui/button";
 import { usePublicProjectsList } from "@/hooks/usePublicProjects";
+import { supabase } from "@/integrations/supabase/client";
+
+interface Brand {
+  id: string;
+  name: string;
+  logo_url: string | null;
+}
+
+const useBrands = () => {
+  const [brands, setBrands] = useState<Brand[]>([]);
+  useEffect(() => {
+    supabase
+      .from("brands")
+      .select("id, name, logo_url")
+      .order("name")
+      .then(({ data }) => setBrands(data ?? []));
+  }, []);
+  return brands;
+};
+
+const BrandLogo = ({ name, logo_url }: { name: string; logo_url?: string }) => (
+  <div className="flex h-24 w-52 shrink-0 items-center justify-center rounded-2xl border border-border/50 bg-background px-6 shadow-sm transition-shadow hover:shadow-md">
+    {logo_url ? (
+      <img
+        src={logo_url}
+        alt={name}
+        className="max-h-14 max-w-full object-contain"
+        loading="lazy"
+      />
+    ) : (
+      <span className="text-sm font-semibold uppercase tracking-widest text-foreground/40 text-center leading-tight">
+        {name}
+      </span>
+    )}
+  </div>
+);
 
 const Projects = () => {
   const { data: projects = [], isLoading, isError } = usePublicProjectsList();
+  const brands = useBrands();
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
@@ -55,6 +92,26 @@ const Projects = () => {
             </div>
           </div>
         </section>
+
+        {/* Brand Logos Marquee */}
+        {brands.length > 0 && (
+          <section className="border-b border-border/60 py-14 overflow-hidden bg-background">
+            <div className="container mb-8 text-center">
+              <p className="text-[11px] uppercase tracking-[0.3em] text-foreground/40">
+                Thương hiệu đã tin tưởng TIKA
+              </p>
+            </div>
+            <div className="relative overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_10%,black_90%,transparent)]">
+              <div className="flex w-max gap-5 animate-marquee">
+                {[0, 1, 2, 3].flatMap((set) =>
+                  brands.map((b) => (
+                    <BrandLogo key={`${b.id}-${set}`} name={b.name} logo_url={b.logo_url ?? undefined} />
+                  ))
+                )}
+              </div>
+            </div>
+          </section>
+        )}
 
         {/* Projects Grid */}
         <section className="container py-16 md:py-24">
